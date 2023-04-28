@@ -1,0 +1,9 @@
+---
+title: "soccR"
+author: "Anatole GAYANT, Jules AVIGNON, Clément PEREON"
+date: "2023-04-28"
+output: html_document
+---
+
+
+soccR est le projet le plus ambitieux de tous les temps 
