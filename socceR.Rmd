@@ -6,6 +6,20 @@ output: html_document
 ---
 
 
-soccR est le projet le plus ambitieux de tous les temps 
+On s'intéresse a une API sur le foot. 
+On peut en trouver une sur le site : https://www.football-data.org/
 
-J'avoue
+
+```{r}
+library(httr)
+library(jsonlite)
+
+# Récupération des données de tous les matchs de la Champions League
+url <- "https://api.football-data.org/v4/competitions/CL/matches"
+response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
+data <- fromJSON(rawToChar(response$content))
+
+# Affichage des données sur les matchs
+data$matches
+```
+
