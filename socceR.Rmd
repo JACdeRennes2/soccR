@@ -10,16 +10,26 @@ On s'intéresse a une API sur le foot.
 On peut en trouver une sur le site : https://www.football-data.org/
 
 
+# Récupération d'une base de données sur le foot CL 2021
 ```{r}
 library(httr)
 library(jsonlite)
 
 # Récupération des données de tous les matchs de la Champions League
-url <- "https://api.football-data.org/v4/competitions/CL/matches"
+url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2021"
 response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
 data <- fromJSON(rawToChar(response$content))
-
-# Affichage des données sur les matchs
-data$matches
+matches <- data$matches
 ```
+
+# Affichage de la liste des matches
+
+```{r}
+for (i in 1:length(matches$homeTeam)) {
+  home_team <- matches[i]$homeTeam$name
+  away_team <- matches[i]$awayTeam$name
+  cat("Match", i, ":", home_team, "vs", away_team, "\n")
+}
+```
+
 
