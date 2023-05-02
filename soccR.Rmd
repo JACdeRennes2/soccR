@@ -17,6 +17,7 @@ library(jsonlite)
 
 # Récupération des données de tous les matchs de la Champions League
 url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2021"
+url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2022"
 response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
 data <- fromJSON(rawToChar(response$content))
 matches <- data$matches
@@ -25,11 +26,23 @@ matches <- data$matches
 # Affichage de la liste des matches
 
 ```{r}
-for (i in 1:length(matches$homeTeam)) {
-  home_team <- matches[i]$homeTeam$name
-  away_team <- matches[i]$awayTeam$name
-  cat("Match", i, ":", home_team, "vs", away_team, "\n")
-}
+```{r, warning=FALSE}
+library(dplyr)
+
+matches_tbl <- as_tibble(matches)
+
+matches_scores <- matches_tbl %>%
+  select(homeTeam, awayTeam, scores$fullTime$home, scores$fullTime$away) %>%
+  mutate(
+    homeTeam_name = pull(homeTeam, "name"),
+    awayTeam_name = pull(awayTeam, "name"),
+    total_score = paste(scores$fullTime$home, "-", scores$fullTime$away)
+  ) %>%
+  select(homeTeam_name, awayTeam_name, total_score, scores$fullTime$home, scores$fullTime$away) %>%
+  arrange(matches_tbl$utcDate)
+
+matches_scores
+
 ```
 
 
