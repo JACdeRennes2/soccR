@@ -11,12 +11,12 @@ On peut en trouver une sur le site : https://www.football-data.org/
 
 
 # Récupération d'une base de données sur le foot CL 2021
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library(httr)
 library(jsonlite)
 
 # Récupération des données de tous les matchs de la Champions League
-url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2022"
+url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2021"
 response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
 data <- fromJSON(rawToChar(response$content))
 matches <- data$matches
@@ -24,29 +24,31 @@ matches <- data$matches
 
 # Affichage de la liste des matches
 
-```{r, warning=FALSE}
+```{r, message=FALSE}
 library(dplyr)
-
+library(DT)
 
 matches_tbl <- as_tibble(matches)
 
 matches_scores <-
-  select(matches_tbl, homeTeam, awayTeam, score) |>
+  select(matches_tbl, homeTeam, awayTeam, score, utcDate) |>
   mutate(
     homeTeam_name = pull(homeTeam, "name"),
     awayTeam_name = pull(awayTeam, "name"),
     home_score = pull(score$fullTime, "home"),
     away_score = pull(score$fullTime, "away"),
-    total_score = paste(home_score, "-", away_score))|>
+    total_score = paste(home_score, "-", away_score),
+    date = as.Date(utcDate))|>
   select(homeTeam_name,
          awayTeam_name,
          total_score,
-         home_score,
-         away_score) |>
-  arrange(matches_tbl$utcDate)
-|> 
+         date) |>
+  arrange(desc(matches_tbl$utcDate))
 
-matches_scores
+datatable(matches_scores, options = list(pageLength = 10, lengthMenu = c(10, 20, 50)), 
+          filter = "top", rownames = FALSE,
+          colnames = c("Home Team", "Away Team", "Total Score", "Date"),
+          caption = "Tableau des scores Champions League 2021")
 ```
 
 
