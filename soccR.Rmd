@@ -27,17 +27,24 @@ matches <- data$matches
 ```{r, warning=FALSE}
 library(dplyr)
 
+
 matches_tbl <- as_tibble(matches)
 
-matches_scores <- matches_tbl %>%
-  select(homeTeam, awayTeam, scores$fullTime$home, scores$fullTime$away) %>%
+matches_scores <-
+  select(matches_tbl, homeTeam, awayTeam, score) |>
   mutate(
     homeTeam_name = pull(homeTeam, "name"),
     awayTeam_name = pull(awayTeam, "name"),
-    total_score = paste(scores$fullTime$home, "-", scores$fullTime$away)
-  ) %>%
-  select(homeTeam_name, awayTeam_name, total_score, scores$fullTime$home, scores$fullTime$away) %>%
+    home_score = pull(score$fullTime, "home"),
+    away_score = pull(score$fullTime, "away"),
+    total_score = paste(home_score, "-", away_score))|>
+  select(homeTeam_name,
+         awayTeam_name,
+         total_score,
+         home_score,
+         away_score) |>
   arrange(matches_tbl$utcDate)
+|> 
 
 matches_scores
 ```
