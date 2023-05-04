@@ -55,34 +55,12 @@ datatable(matches_scores, options = list(pageLength = 10, lengthMenu = c(10, 20,
 
 # Association du tour
 
-```{r, message=FALSE}
-library(lubridate)
-# On commence par déterminer les dates de chaque tour en se basant sur la date de la finale
-final_date <- as.Date("2021-05-29")
-semis_date <- final_date - weeks(3)
-quarts_date <- semis_date - weeks(4)
-huitiemes_date <- quarts_date - weeks(4)
-
-# On crée une liste avec les dates de chaque tour
-tours_dates <- list(
-  huitiemes = huitiemes_date,
-  quarts = quarts_date,
-  demis = semis_date,
-  finale = final_date
-)
-
-# On crée une fonction pour associer le nom du tour à chaque match en se basant sur la date
-get_tour_name <- function(date) {
-  for (i in rev(seq_along(tours_dates))) {
-    if (date >= tours_dates[[i]]) {
-      return(names(tours_dates)[i])
-    }
-  }
-}
-
-# On parcourt tous les matchs et on leur associe le nom du tour
-matches_tbl_with_tours <- matches_scores  |> 
-  mutate(tour = sapply(as.Date(date), get_tour_name))
-
+```{r, message=FALSE, Avis = FALSE}
+matches_scores$tour[1] <- "finale"
+matches_scores$tour[2:5] <- "demis"
+matches_scores$tour[6:13] <- "quarts"
+matches_scores$tour[14:29] <- "huitiemes"
+matches_scores$tour[30:nrow(matches_scores)] <- NA
 ```
 
+#Représentation Graphique 
