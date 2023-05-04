@@ -16,7 +16,7 @@ library(httr)
 library(jsonlite)
 
 # Récupération des données de tous les matchs de la Champions League
-url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2021"
+url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2020"
 response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
 data <- fromJSON(rawToChar(response$content))
 matches <- data$matches
@@ -27,6 +27,7 @@ matches <- data$matches
 ```{r, message=FALSE}
 library(dplyr)
 library(DT)
+library(ggplot2)
 
 matches_tbl <- as_tibble(matches)
 
@@ -42,13 +43,46 @@ matches_scores <-
   select(homeTeam_name,
          awayTeam_name,
          total_score,
-         date) |>
+         date, home_score, away_score) |>
   arrange(desc(matches_tbl$utcDate))
 
 datatable(matches_scores, options = list(pageLength = 10, lengthMenu = c(10, 20, 50)), 
           filter = "top", rownames = FALSE,
           colnames = c("Home Team", "Away Team", "Total Score", "Date"),
           caption = "Tableau des scores Champions League 2021")
+
 ```
 
+# Association du tour
+
+```{r, message=FALSE}
+library(lubridate)
+# On commence par déterminer les dates de chaque tour en se basant sur la date de la finale
+final_date <- as.Date("2021-05-29")
+semis_date <- final_date - weeks(3)
+quarts_date <- semis_date - weeks(4)
+huitiemes_date <- quarts_date - weeks(4)
+
+# On crée une liste avec les dates de chaque tour
+tours_dates <- list(
+  huitiemes = huitiemes_date,
+  quarts = quarts_date,
+  demis = semis_date,
+  finale = final_date
+)
+
+# On crée une fonction pour associer le nom du tour à chaque match en se basant sur la date
+get_tour_name <- function(date) {
+  for (i in rev(seq_along(tours_dates))) {
+    if (date >= tours_dates[[i]]) {
+      return(names(tours_dates)[i])
+    }
+  }
+}
+
+# On parcourt tous les matchs et on leur associe le nom du tour
+matches_tbl_with_tours <- matches_scores  |> 
+  mutate(tour = sapply(as.Date(date), get_tour_name))
+
+```
 
