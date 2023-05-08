@@ -17,7 +17,7 @@ library(jsonlite)
 
 # Récupération des données de tous les matchs de la Champions League
 url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2020"
-response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
+response <- GET(url, add_headers("X-Auth-Token" = "12ced50b40534919b6c72fea2d48bb7c"))
 data <- fromJSON(rawToChar(response$content))
 matches <- data$matches
 ```
