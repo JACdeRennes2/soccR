@@ -2,7 +2,8 @@
 title: "soccR"
 author: "Anatole GAYANT, Jules AVIGNON, Clément PEREON"
 date: "2023-04-28"
-output: html_document
+output: 
+  html_document
 ---
 
 
@@ -61,11 +62,61 @@ matches_scores$tour[2:5] <- "demis"
 matches_scores$tour[6:13] <- "quarts"
 matches_scores$tour[14:29] <- "huitiemes"
 matches_scores$tour[30:nrow(matches_scores)] <- NA
+matches_scores <-  na.omit(matches_scores)
 ```
 
 #Représentation Graphique 
 
-```{r}
+```{r, fig.align='center'}
+# Transformation du format des scores
+
+matches_scores$home_score <- as.numeric(sub("^([0-9]+) - ([0-9]+)$", "\\1", matches_scores$total_score))
+matches_scores$away_score <- as.numeric(sub("^([0-9]+) - ([0-9]+)$", "\\2", matches_scores$total_score))
+
+# Création de la variable 'winner'
+matches_scores$winner <- with(matches_scores, ifelse(home_score > away_score, homeTeam_name, ifelse(home_score < away_score, awayTeam_name, "Draw")))
+
+# Création du graphique avec ggplot2
+ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = winner)) + 
+  geom_tile(aes(width = 0.9, height = 0.9), color = "white", size = 0.5) +
+  geom_text(aes(label = total_score), size = 5) +
+  scale_fill_discrete(name = "Winner") +
+  theme_minimal() +
+  labs(x = NULL, y = NULL) +
+  coord_fixed()
+
+```
+
+```{r, warning=FALSE, message=FALSE}
+library(ggpubr)
+library(ggplot2)
+
+matches_bracket <- matches_scores %>%
+  filter(!is.na(home_score) & !is.na(away_score)) %>%
+  mutate(round = case_when(
+    tour == "huitiemes" ~ "8èmes de finale",
+    tour == "quarts" ~ "Quarts de finale",
+    tour == "demis" ~ "Demi-finales",
+    tour == "finale" ~ "Finale"
+  )) %>%
+  select(round, homeTeam_name, awayTeam_name, winner) %>%
+  pivot_longer(cols = c(homeTeam_name, awayTeam_name), names_to = "position", values_to = "team") %>%
+  mutate(position = if_else(position == "homeTeam_name", "left", "right"))
+
+team_heights <- matches_bracket %>%
+  group_by(team) %>%
+  summarize(y = mean(as.numeric(factor(round))), .groups = "drop") %>%
+  arrange(desc(y))
+
+ggplot(matches_bracket, aes(y = team, x = round, fill = winner)) +
+  geom_bracket(aes(xmin = round, xmax = lead(round), ymin = team, ymax = team, color = winner),
+               height = 0.2, width = 0.4, label.padding = unit(1, "mm")) +
+  scale_fill_manual(values = c("red", "blue", "grey"), name = "Winner") +
+  scale_color_manual(values = c("red", "blue", "grey"), guide = FALSE) +
+  theme_minimal() +
+  labs(x = NULL, y = NULL, fill = NULL) +
+  coord_flip() +
+  expand_limits(y = c(levels(matches_bracket$team), NA))
 
 ```
 
