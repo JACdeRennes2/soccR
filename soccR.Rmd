@@ -90,6 +90,7 @@ ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = winner))
 ```{r, warning=FALSE, message=FALSE}
 library(ggpubr)
 library(ggplot2)
+library(tidyverse)
 
 matches_bracket <- matches_scores %>%
   filter(!is.na(home_score) & !is.na(away_score)) %>%
@@ -108,15 +109,20 @@ team_heights <- matches_bracket %>%
   summarize(y = mean(as.numeric(factor(round))), .groups = "drop") %>%
   arrange(desc(y))
 
-ggplot(matches_bracket, aes(y = team, x = round, fill = winner)) +
-  geom_bracket(aes(xmin = round, xmax = lead(round), ymin = team, ymax = team, color = winner),
-               height = 0.2, width = 0.4, label.padding = unit(1, "mm")) +
-  scale_fill_manual(values = c("red", "blue", "grey"), name = "Winner") +
-  scale_color_manual(values = c("red", "blue", "grey"), guide = FALSE) +
+ggplot(matches_bracket, aes(y = team, x = round, color = winner)) +
+  geom_segment(aes(x = round, xend = lead(round), y = team, yend = team), size = 1) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("red", "blue", "grey", "green", "purple", "orange", "yellow", "pink", "brown", "black"),guide = FALSE) +
   theme_minimal() +
   labs(x = NULL, y = NULL, fill = NULL) +
   coord_flip() +
-  expand_limits(y = c(levels(matches_bracket$team), NA))
+  expand_limits(y = c(levels(matches_bracket$team), NA)) +
+  geom_text(aes(x = lead(round), y = team, label = team), hjust = 0, size = 3, nudge_x = 0.1, fontface = "bold")
+
+
+```
+
+```{r}
 
 ```
 
