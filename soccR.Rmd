@@ -43,7 +43,7 @@ matches_scores <-
   select(homeTeam_name,
          awayTeam_name,
          total_score,
-         date, home_score, away_score) |>
+         date) |>
   arrange(desc(matches_tbl$utcDate))
 
 datatable(matches_scores, options = list(pageLength = 10, lengthMenu = c(10, 20, 50)), 
@@ -64,3 +64,8 @@ matches_scores$tour[30:nrow(matches_scores)] <- NA
 ```
 
 #Représentation Graphique 
+
+```{r}
+
+```
+
