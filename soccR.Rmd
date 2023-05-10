@@ -170,17 +170,94 @@ df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_buteurs[[1]])
 ```
 
-# Tha le graphique 
+# Graphique des meilleurs attack 
+
 ```{r, fig.align='center'}
+# Liste de correspondance entre clubs et couleurs de maillot
+colors <- list("Bayern Munich" = "#DC052D",
+               "Manchester City" = "#75AADB",
+               "Chelsea FC" = "#034694",
+               "Paris Saint-Germain" = "#0044CC",
+               "Real Madrid" = "#FFFFFF")
+
+# Sélection des données
 df_buteurs_top5 <- df_buteurs[[1]] |>
   filter(Rang <= 5) |>
-  select(Club, `Buts/match`)
+  select(Club, `Buts/match`)|>
+  arrange(`Buts/match`)
 
-ggplot(df_buteurs_top5, aes(x = Club, y = `Buts/match`)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
+
+# Histogramme
+ggplot(df_buteurs_top5, aes(x = Club, y = `Buts/match`, fill = Club)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = colors) +
   labs(title = "Histogramme des buts par match des 5 équipes qui ont marqué le plus",
        x = "Club",
        y = "Buts par match")
+
+
+```
+
+
+## Meilleurs buteurs
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(1) > table > tbody"
+df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_buteurs[[1]])
+```
+
+```{r}
+df_buteurs_top5 <- df_buteurs[[1]] %>%
+  slice(1:5) %>%
+  arrange(desc(`Buts[22]`))
+
+ggplot(df_buteurs_top5, aes(x = reorder(Buteur, `Buts[22]`), y = `Buts[22]`)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1)) +
+  labs(title = "Histogramme du nombre de buts des 10 meilleurs buteurs",
+       x = "Joueur",
+       y = "Nombre de buts")
+
+```
+
+
+## Meilleurs passeurs
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(2) > table > tbody"
+df_passeurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_passeurs[[1]])
+```
+
+```{r}
+# Chargement des packages nécessaires
+library(tidyverse)
+
+# Liste de correspondance entre clubs et couleurs de maillot
+colors <- list("Juventus FC" = "#000000",
+               "Manchester City" = "#75AADB",
+               "Bayern Munich" = "#DC052D",
+               "Paris SG" = "#0044CC",
+               "Real Madrid" = "#FFFFFF")
+
+# Chargement des données
+df_passeurs <- read.csv("data/top5_championnats_passeurs.csv", header = TRUE, sep = ",")
+
+# Sélection des données
+df_passeurs_top5 <- df_passeurs %>%
+  filter(Rang <= 5) %>%
+  select(Passeur, Passes = Passes[23])
+
+# Histogramme
+ggplot(df_passeurs_top5, aes(x = Passeur, y = Passes, fill = Passeur)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = colors) +
+  labs(title = "Histogramme des passes par joueur des 5 meilleurs passeurs",
+       x = "Joueur",
+       y = "Passes") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
 ```
 
