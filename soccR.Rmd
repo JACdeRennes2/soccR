@@ -6,13 +6,7 @@ output:
   html_document
 ---
 
-On s'intéresse a une API sur le foot. 
-On peut en trouver une sur le site : https://www.football-data.org/
-
-
-# Récupération d'une base de données sur le foot CL 2021
-
-Pour notre projet de R avancé, nous avons choisis de récupérer les données de tous les matchs de la Ligue des champions 2020-2021 à partir de l'API football-data.org. Pour cela, nous avons utilisés les librairies httr et jsonlite.
+Pour notre projet de R avancé, nous avons choisi de récupérer les données de tous les matchs de l'édition 2020-2021 de la Ligue des champions à partir de l'API football-data.org. Pour cela, nous avons utilisé les librairies httr et jsonlite.
 
 Nous avons d'abord envoyé une requête GET à l'API en spécifiant l'URL et le token d'authentification dans les en-têtes de la requête. Nous avons ensuite converti la réponse en texte brut et l'ai parseé en utilisant la fonction fromJSON de jsonlite.
 
@@ -31,7 +25,7 @@ data <- fromJSON(rawToChar(response$content))
 matches <- data$matches
 ```
 
-# Affichage de la liste des matches
+# Liste des matchs
 
 On récupère les données de tous les matchs de la Ligue des Champions 2020-2021 depuis une API, et les stocke dans un objet "matches". Ensuite, le code utilise les packages "dplyr", "DT" et "ggplot2" pour transformer ces données en un tableau affichant les scores des matchs avec les noms des équipes, les dates, et triés par ordre chronologique décroissant. Enfin, la fonction "datatable" de DT est utilisée pour afficher ce tableau dans le R Markdown, avec des options pour la pagination, la recherche et le renommage des colonnes.
 
@@ -77,7 +71,7 @@ matches_scores <-  na.omit(matches_scores)
 
 On utilise le fait que les matchs soient classés par ordre croissant pour leur assigner un tour. (On s'intrésse uniquement au match a partir des 8 ème de finale)
 
-# Représentation Graphique 
+# Représentation graphique 
 
 ```{r, fig.align='center', message=FALSE}
 # Transformation du format des scores
@@ -100,8 +94,6 @@ ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = tour)) +
 
 ```
 
-
-# Web Scraping
 
 Nous nous intéressons à la page wikipédia de l'édition 2020-2021 de la Ligue des champions : 
 https://fr.wikipedia.org/wiki/Ligue_des_champions_de_l%27UEFA_2020-2021
