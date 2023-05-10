@@ -218,3 +218,11 @@ css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) 
 df_passeurs <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_passeurs[[1]])
 ```
+
+## Aggregation
+
+```{r}
+passes_equipe <- df_passeurs[[1]] %>% group_by(Club) %>% summarize(nb_passes = sum(`Passes[23]`))
+passes_equipe
+```
+
