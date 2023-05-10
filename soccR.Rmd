@@ -169,6 +169,34 @@ df_buteurs_equipes <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_buteurs_equipes[[1]])
 ```
 
+# Graphique des meilleures attaques
+
+```{r, message=FALSE, fig.align='center'}
+# Liste de correspondance entre clubs et couleurs de maillot
+colors <- list("Bayern Munich" = "#DC052D",
+               "Manchester City" = "#75AADB",
+               "Chelsea FC" = "#034694",
+               "Paris Saint-Germain" = "#0044CC",
+               "Real Madrid" = "#FFFFFF")
+
+# Sélection des données
+df_buteurs_top5 <- df_buteurs[[1]] |>
+  filter(Rang <= 5) |>
+  select(Club, `Buts/match`)|>
+  arrange(`Buts/match`)
+
+
+# Histogramme
+ggplot(df_buteurs_top5, aes(x = Club, y = `Buts/match`, fill = Club)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = colors) +
+  labs(title = "Histogramme des buts par match des 10 équipes qui ont marqué le plus",
+       x = "Club",
+       y = "Buts par match")
+
+
+```
+
 ## Meilleurs buteurs
 
 ```{r message=FALSE}
@@ -193,4 +221,3 @@ En agrégeant, on obtient le nombre de passes décisives par équipe.
 passes_equipe <- df_passeurs[[1]] %>% group_by(Club) %>% summarize(nb_passes = sum(`Passes[23]`))
 passes_equipe
 ```
-
