@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 title: "soccR"
 author: "Anatole GAYANT, Jules AVIGNON, Clément PEREON"
@@ -12,6 +11,15 @@ On peut en trouver une sur le site : https://www.football-data.org/
 
 
 # Récupération d'une base de données sur le foot CL 2021
+
+Pour notre projet de R avancé, nous avons choisis de récupérer les données de tous les matchs de la Ligue des champions 2020-2021 à partir de l'API football-data.org. Pour cela, nous avons utilisés les librairies httr et jsonlite.
+
+Nous avons d'abord envoyé une requête GET à l'API en spécifiant l'URL et le token d'authentification dans les en-têtes de la requête. Nous avons ensuite converti la réponse en texte brut et l'ai parseé en utilisant la fonction fromJSON de jsonlite.
+
+Finalement on extrait les données des matchs en accédant à l'élément "matches" du JSON renvoyé par l'API.
+
+Voici le code utilisé pour récupérer les données :
+
 ```{r, warning=FALSE}
 library(httr)
 library(jsonlite)
@@ -24,6 +32,8 @@ matches <- data$matches
 ```
 
 # Affichage de la liste des matches
+
+On récupère les données de tous les matchs de la Ligue des Champions 2020-2021 depuis une API, et les stocke dans un objet "matches". Ensuite, le code utilise les packages "dplyr", "DT" et "ggplot2" pour transformer ces données en un tableau affichant les scores des matchs avec les noms des équipes, les dates, et triés par ordre chronologique décroissant. Enfin, la fonction "datatable" de DT est utilisée pour afficher ce tableau dans le R Markdown, avec des options pour la pagination, la recherche et le renommage des colonnes.
 
 ```{r, message=FALSE}
 library(dplyr)
@@ -65,7 +75,9 @@ matches_scores$tour[30:nrow(matches_scores)] <- NA
 matches_scores <-  na.omit(matches_scores)
 ```
 
-#Représentation Graphique 
+On utilise le fait que les matchs soient classés par ordre croissant pour leur assigner un tour. (On s'intrésse uniquement au match a partir des 8 ème de finale)
+
+# Représentation Graphique 
 
 ```{r, fig.align='center', message=FALSE}
 # Transformation du format des scores
@@ -106,7 +118,7 @@ Voici, pour chaque pays, le nombre d'équipes qualifiées à l'issue de la phase
 ```{r message=FALSE}
 # Tableau des équipes qualifiées à l'issue de la phase de groupe
 css_selector <- "#mw-content-text > div > table:nth-of-type(25)"
-df_qualifies <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_qualifies <- data_html |> html_nodes(css_selector) |> html_table()
 names(df_qualifies[[1]])[2] <- "premiers"
 names(df_qualifies[[1]])[3] <- "deuxiemes"
 datatable(df_qualifies[[1]])
@@ -119,7 +131,7 @@ Voici le détail de la phase à élimination directe avec, pour chaque tour, les
 
 ```{r message=FALSE}
 css_selector <- "#mw-content-text > div > table:nth-of-type(26)"
-df_huit <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_huit <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_huit[[1]])
 ```
 
@@ -128,7 +140,7 @@ datatable(df_huit[[1]])
 ```{r message=FALSE}
 # Tableau des quarts de finale
 css_selector <- "#mw-content-text > div > table:nth-of-type(27)"
-df_quart <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_quart <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_quart[[1]])
 ```
 
@@ -137,7 +149,7 @@ datatable(df_quart[[1]])
 ```{r message=FALSE}
 # Tableau des demi-finales
 css_selector <- "#mw-content-text > div > table:nth-of-type(28)"
-df_demi <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_demi <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_demi[[1]])
 ```
 
@@ -146,6 +158,6 @@ datatable(df_demi[[1]])
 ```{r message=FALSE}
 # Tableau de la finale
 css_selector <- "#mw-content-text > div > table:nth-of-type(29)"
-df_finale <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_finale <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_finale[[1]])
 ```
