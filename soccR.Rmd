@@ -169,3 +169,18 @@ css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(135) 
 df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_buteurs[[1]])
 ```
+
+# Tha le graphique 
+```{r, fig.align='center'}
+df_buteurs_top5 <- df_buteurs[[1]] |>
+  filter(Rang <= 5) |>
+  select(Club, `Buts/match`)
+
+ggplot(df_buteurs_top5, aes(x = Club, y = `Buts/match`)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Histogramme des buts par match des 5 équipes qui ont marqué le plus",
+       x = "Club",
+       y = "Buts par match")
+
+```
+
