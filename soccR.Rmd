@@ -87,41 +87,6 @@ ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = tour)) +
 
 ```
 
-```{r, warning=FALSE, message=FALSE}
-library(ggpubr)
-library(ggplot2)
-library(tidyverse)
-
-matches_bracket <- matches_scores %>%
-  filter(!is.na(home_score) & !is.na(away_score)) %>%
-  mutate(round = case_when(
-    tour == "huitiemes" ~ "8èmes de finale",
-    tour == "quarts" ~ "Quarts de finale",
-    tour == "demis" ~ "Demi-finales",
-    tour == "finale" ~ "Finale"
-  )) %>%
-  select(round, homeTeam_name, awayTeam_name, winner) %>%
-  pivot_longer(cols = c(homeTeam_name, awayTeam_name), names_to = "position", values_to = "team") %>%
-  mutate(position = if_else(position == "homeTeam_name", "left", "right"))
-
-team_heights <- matches_bracket %>%
-  group_by(team) %>%
-  summarize(y = mean(as.numeric(factor(round))), .groups = "drop") %>%
-  arrange(desc(y))
-
-ggplot(matches_bracket, aes(y = team, x = round, color = winner)) +
-  geom_segment(aes(x = round, xend = lead(round), y = team, yend = team), size = 1) +
-  geom_point(size = 3) +
-  scale_color_manual(values = c("red", "blue", "grey", "green", "purple", "orange", "yellow", "pink", "brown", "black"),guide = FALSE) +
-  theme_minimal() +
-  labs(x = NULL, y = NULL, fill = NULL) +
-  coord_flip() +
-  expand_limits(y = c(levels(matches_bracket$team), NA)) +
-  geom_text(aes(x = lead(round), y = team, label = team), hjust = 0, size = 3, nudge_x = 0.1, fontface = "bold")
-
-
-```
-
 # Web Scraping
 
 Nous nous intéressons à la page wikipédia de l'édition 2020-2021 de la Ligue des champions : 
@@ -132,15 +97,6 @@ library(rvest)
 
 url <- "https://fr.wikipedia.org/wiki/Ligue_des_champions_de_l%27UEFA_2020-2021"
 data_html <- read_html(url)
-```
-
-Voici, pour chaque pays, le nombre d'équipes qualifiées à l'issue de la phase de groupe : 
-
-```{r message=FALSE}
-css_selector <- "#mw-content-text > div > table:nth-of-type(25)"
-df_qualifies <- data_html %>% html_nodes(css_selector) %>% html_table()
-names(df_qualifies[[1]])[2] <- "premiers"
-names(df_qualifies[[1]])[3] <- "deuxiemes"
 ```
 
 Voici le détail de la phase à élimination directe avec, pour chaque tour, les scores aux matchs allers, aux matchs retours et totaux.
