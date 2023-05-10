@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "soccR"
 author: "Anatole GAYANT, Jules AVIGNON, Clément PEREON"
@@ -88,7 +89,6 @@ ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = tour)) +
 ```
 
 
-
 # Web Scraping
 
 Nous nous intéressons à la page wikipédia de l'édition 2020-2021 de la Ligue des champions : 
@@ -149,4 +149,3 @@ css_selector <- "#mw-content-text > div > table:nth-of-type(29)"
 df_finale <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_finale[[1]])
 ```
-
