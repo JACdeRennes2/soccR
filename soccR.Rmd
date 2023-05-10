@@ -216,7 +216,7 @@ ggplot(df_buteurs_top5, aes(x = reorder(Buteur, `Buts[22]`), y = `Buts[22]`)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   coord_flip() +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1)) +
-  labs(title = "Histogramme du nombre de buts des 10 meilleurs buteurs",
+  labs(title = "Histogramme du nombre de buts des 5 meilleurs buteurs",
        x = "Joueur",
        y = "Nombre de buts")
 
