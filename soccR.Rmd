@@ -161,3 +161,11 @@ css_selector <- "#mw-content-text > div > table:nth-of-type(29)"
 df_finale <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_finale[[1]])
 ```
+
+## Meilleures attaques
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(135) > tbody > tr > td:nth-child(1) > table > tbody"
+df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_buteurs[[1]])
+```
