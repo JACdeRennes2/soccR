@@ -189,3 +189,18 @@ df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_buteurs[[1]])
 ```
 
+## Meilleurs buteurs
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(1) > table > tbody"
+df_buteurs_joueurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_buteurs_joueurs[[1]])
+```
+
+## Meilleurs passeurs
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(2) > table > tbody"
+df_passeurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_passeurs[[1]])
+```
