@@ -231,3 +231,12 @@ df_passeurs <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_passeurs[[1]])
 ```
 
+
+## Agregation
+
+En agrégeant, on obtient le nombre de passes décisives par équipe.
+
+```{r message=FALSE}
+passes_equipe <- df_passeurs[[1]] %>% group_by(Club) %>% summarize(nb_passes = sum(`Passes[23]`))
+passes_equipe
+```
