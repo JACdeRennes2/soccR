@@ -6,15 +6,23 @@ output:
   html_document
 ---
 
+```{r include=FALSE}
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(DT)
+library(ggplot2)
+library(ggpubr)
+library(tidyverse)
+library(rvest)
+```
+
 # API
 
 On s'intéresse à l'édition 2020-2021 de la Ligue des champions.
 Les données proviennent du site : https://www.football-data.org/
 
 ```{r, warning=FALSE, message=FALSE}
-library(httr)
-library(jsonlite)
-
 # Récupération des données de tous les matchs de la Champions League
 url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2020"
 response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
@@ -25,10 +33,6 @@ matches <- data$matches
 ## Liste des matches
 
 ```{r, message=FALSE}
-library(dplyr)
-library(DT)
-library(ggplot2)
-
 matches_tbl <- as_tibble(matches)
 
 matches_scores <-
@@ -88,10 +92,6 @@ ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = tour)) +
 ```
 
 ```{r, warning=FALSE, message=FALSE}
-library(ggpubr)
-library(ggplot2)
-library(tidyverse)
-
 matches_bracket <- matches_scores %>%
   filter(!is.na(home_score) & !is.na(away_score)) %>%
   mutate(round = case_when(
@@ -128,8 +128,6 @@ Nous nous intéressons à la page wikipédia de l'édition 2020-2021 de la Ligue
 https://fr.wikipedia.org/wiki/Ligue_des_champions_de_l%27UEFA_2020-2021
 
 ```{r message=FALSE}
-library(rvest)
-
 url <- "https://fr.wikipedia.org/wiki/Ligue_des_champions_de_l%27UEFA_2020-2021"
 data_html <- read_html(url)
 ```
@@ -176,7 +174,12 @@ css_selector <- "#mw-content-text > div > table:nth-of-type(29)"
 df_finale <- data_html %>% html_nodes(css_selector) %>% html_table()
 df_finale
 ```
+## Meilleures attaques
 
-
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(135) > tbody > tr > td:nth-child(1) > table > tbody"
+df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_buteurs
+```
 
 
