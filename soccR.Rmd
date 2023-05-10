@@ -185,7 +185,7 @@ datatable(df_finale[[1]])
 
 ```{r message=FALSE}
 css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(135) > tbody > tr > td:nth-child(1) > table > tbody"
-df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_buteurs_equipes <- data_html %>% html_nodes(css_selector) %>% html_table()
 datatable(df_buteurs[[1]])
 ```
 
@@ -193,8 +193,8 @@ datatable(df_buteurs[[1]])
 
 ```{r message=FALSE}
 css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(1) > table > tbody"
-df_buteurs_joueurs <- data_html %>% html_nodes(css_selector) %>% html_table()
-datatable(df_buteurs_joueurs[[1]])
+df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_buteurs[[1]])
 ```
 
 ## Meilleurs passeurs
