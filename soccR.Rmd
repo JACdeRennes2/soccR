@@ -19,9 +19,6 @@ library(rvest)
 
 # API
 
-On s'intéresse à l'édition 2020-2021 de la Ligue des champions.
-Les données proviennent du site : https://www.football-data.org/
-
 Pour notre projet de R avancé, nous avons choisi de récupérer les données de tous les matchs de l'édition 2020-2021 de la Ligue des champions à partir de l'API football-data.org. Pour cela, nous avons utilisé les librairies httr et jsonlite.
 
 Nous avons d'abord envoyé une requête GET à l'API en spécifiant l'URL et le token d'authentification dans les en-têtes de la requête. Nous avons ensuite converti la réponse en texte brut et l'ai parseé en utilisant la fonction fromJSON de jsonlite.
@@ -101,37 +98,6 @@ ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = tour)) +
   labs(x = NULL, y = NULL) +
   coord_fixed() +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
-
-```
-
-```{r, warning=FALSE, message=FALSE}
-matches_bracket <- matches_scores %>%
-  filter(!is.na(home_score) & !is.na(away_score)) %>%
-  mutate(round = case_when(
-    tour == "huitiemes" ~ "8èmes de finale",
-    tour == "quarts" ~ "Quarts de finale",
-    tour == "demis" ~ "Demi-finales",
-    tour == "finale" ~ "Finale"
-  )) %>%
-  select(round, homeTeam_name, awayTeam_name, winner) %>%
-  pivot_longer(cols = c(homeTeam_name, awayTeam_name), names_to = "position", values_to = "team") %>%
-  mutate(position = if_else(position == "homeTeam_name", "left", "right"))
-
-team_heights <- matches_bracket %>%
-  group_by(team) %>%
-  summarize(y = mean(as.numeric(factor(round))), .groups = "drop") %>%
-  arrange(desc(y))
-
-ggplot(matches_bracket, aes(y = team, x = round, color = winner)) +
-  geom_segment(aes(x = round, xend = lead(round), y = team, yend = team), size = 1) +
-  geom_point(size = 3) +
-  scale_color_manual(values = c("red", "blue", "grey", "green", "purple", "orange", "yellow", "pink", "brown", "black"),guide = FALSE) +
-  theme_minimal() +
-  labs(x = NULL, y = NULL, fill = NULL) +
-  coord_flip() +
-  expand_limits(y = c(levels(matches_bracket$team), NA)) +
-  geom_text(aes(x = lead(round), y = team, label = team), hjust = 0, size = 3, nudge_x = 0.1, fontface = "bold")
-
 
 ```
 
@@ -220,6 +186,8 @@ datatable(df_passeurs[[1]])
 ```
 
 ## Aggregation
+
+En aggrégeant, on obtient le nombre de passes décisives par équipe.
 
 ```{r}
 passes_equipe <- df_passeurs[[1]] %>% group_by(Club) %>% summarize(nb_passes = sum(`Passes[23]`))
