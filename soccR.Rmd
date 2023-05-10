@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "soccR"
 author: "Anatole GAYANT, Jules AVIGNON, Clément PEREON"
@@ -261,3 +262,201 @@ ggplot(df_passeurs_top5, aes(x = Passeur, y = Passes, fill = Passeur)) +
 
 ```
 
+=======
+---
+title: "soccR"
+author: "Anatole GAYANT, Jules AVIGNON, Clément PEREON"
+date: "2023-04-28"
+output: 
+  html_document
+---
+
+```{r include=FALSE}
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(DT)
+library(ggplot2)
+library(ggpubr)
+library(tidyverse)
+library(rvest)
+```
+
+# API
+
+Pour notre projet de R avancé, nous avons choisi de récupérer les données de tous les matchs de l'édition 2020-2021 de la Ligue des champions à partir de l'API football-data.org. Pour cela, nous avons utilisé les librairies httr et jsonlite.
+
+Nous avons d'abord envoyé une requête GET à l'API en spécifiant l'URL et le token d'authentification dans les en-têtes de la requête. Nous avons ensuite converti la réponse en texte brut et l'ai parseé en utilisant la fonction fromJSON de jsonlite.
+
+Finalement on extrait les données des matchs en accédant à l'élément "matches" du JSON renvoyé par l'API.
+
+Voici le code utilisé pour récupérer les données :
+
+```{r, warning=FALSE, message=FALSE}
+#Récupération des données de tous les matchs de la Champions League
+url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2020"
+response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
+data <- fromJSON(rawToChar(response$content))
+matches <- data$matches
+```
+
+## Liste des matches
+
+On récupère les données de tous les matchs de la Ligue des Champions 2020-2021 depuis une API, et les stocke dans un objet "matches". Ensuite, le code utilise les packages "dplyr", "DT" et "ggplot2" pour transformer ces données en un tableau affichant les scores des matchs avec les noms des équipes, les dates, et triés par ordre chronologique décroissant. Enfin, la fonction "datatable" de DT est utilisée pour afficher ce tableau dans le R Markdown, avec des options pour la pagination, la recherche et le renommage des colonnes.
+
+```{r, message=FALSE}
+matches_tbl <- as_tibble(matches)
+
+matches_scores <-
+  select(matches_tbl, homeTeam, awayTeam, score, utcDate) |>
+  mutate(
+    homeTeam_name = pull(homeTeam, "name"),
+    awayTeam_name = pull(awayTeam, "name"),
+    home_score = pull(score$fullTime, "home"),
+    away_score = pull(score$fullTime, "away"),
+    total_score = paste(home_score, "-", away_score),
+    date = as.Date(utcDate))|>
+  select(homeTeam_name,
+         awayTeam_name,
+         total_score,
+         date) |>
+  arrange(desc(matches_tbl$utcDate))
+
+datatable(matches_scores, options = list(pageLength = 10, lengthMenu = c(10, 20, 50)), 
+          filter = "top", rownames = FALSE,
+          colnames = c("Home Team", "Away Team", "Total Score", "Date"),
+          caption = "Tableau des scores Champions League 2021")
+
+```
+
+## Association du tour
+
+```{r, message=FALSE, Avis = FALSE}
+matches_scores$tour[1] <- "finale"
+matches_scores$tour[2:5] <- "demis"
+matches_scores$tour[6:13] <- "quarts"
+matches_scores$tour[14:29] <- "huitiemes"
+matches_scores$tour[30:nrow(matches_scores)] <- NA
+matches_scores <-  na.omit(matches_scores)
+```
+
+## Représentation graphique 
+
+On utilise le fait que les matchs soient classés par ordre croissant pour leur assigner un tour. (On s'intrésse uniquement au match a partir des 8 ème de finale)
+
+# Représentation graphique 
+
+```{r, fig.align='center', message=FALSE}
+# Transformation du format des scores
+matches_scores$home_score <- as.numeric(sub("^([0-9]+) - ([0-9]+)$", "\\1", matches_scores$total_score))
+matches_scores$away_score <- as.numeric(sub("^([0-9]+) - ([0-9]+)$", "\\2", matches_scores$total_score))
+
+# Création de la variable 'winner'
+matches_scores$winner <- with(matches_scores, ifelse(home_score > away_score, homeTeam_name, ifelse(home_score < away_score, awayTeam_name, "Draw")))
+
+# Création du graphique avec ggplot2
+ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = tour)) + 
+  geom_tile(aes(width = 0.9, height = 0.9), color = "white", size = 0.5) +
+  geom_text(aes(label = total_score), size = 5) +
+  scale_fill_discrete(name = "Tour") +
+  theme_minimal() +
+  labs(x = NULL, y = NULL) +
+  coord_fixed() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+
+```
+
+
+# Web Scraping
+
+
+Nous nous intéressons à la page wikipédia de l'édition 2020-2021 de la Ligue des champions : 
+https://fr.wikipedia.org/wiki/Ligue_des_champions_de_l%27UEFA_2020-2021
+
+```{r message=FALSE}
+url <- "https://fr.wikipedia.org/wiki/Ligue_des_champions_de_l%27UEFA_2020-2021"
+data_html <- read_html(url)
+```
+
+Voici, pour chaque pays, le nombre d'équipes qualifiées à l'issue de la phase de groupe : 
+
+```{r message=FALSE}
+# Tableau des équipes qualifiées à l'issue de la phase de groupe
+css_selector <- "#mw-content-text > div > table:nth-of-type(25)"
+df_qualifies <- data_html |> html_nodes(css_selector) |> html_table()
+names(df_qualifies[[1]])[2] <- "premiers"
+names(df_qualifies[[1]])[3] <- "deuxiemes"
+datatable(df_qualifies[[1]])
+```
+
+Voici le détail de la phase à élimination directe avec, pour chaque tour, les scores aux matchs allers, aux matchs retours et totaux.
+
+## Huitièmes de finale
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div > table:nth-of-type(26)"
+df_huit <- data_html |> html_nodes(css_selector) |> html_table()
+datatable(df_huit[[1]])
+```
+
+## Quarts de finale
+
+```{r message=FALSE}
+# Tableau des quarts de finale
+css_selector <- "#mw-content-text > div > table:nth-of-type(27)"
+df_quart <- data_html |> html_nodes(css_selector) |> html_table()
+datatable(df_quart[[1]])
+```
+
+## Demi-finales
+
+```{r message=FALSE}
+# Tableau des demi-finales
+css_selector <- "#mw-content-text > div > table:nth-of-type(28)"
+df_demi <- data_html |> html_nodes(css_selector) |> html_table()
+datatable(df_demi[[1]])
+```
+
+## Finale
+
+```{r message=FALSE}
+# Tableau de la finale
+css_selector <- "#mw-content-text > div > table:nth-of-type(29)"
+df_finale <- data_html |> html_nodes(css_selector) |> html_table()
+datatable(df_finale[[1]])
+```
+
+## Meilleures attaques
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(135) > tbody > tr > td:nth-child(1) > table > tbody"
+df_buteurs_equipes <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_buteurs_equipes[[1]])
+```
+
+## Meilleurs buteurs
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(1) > table > tbody"
+df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_buteurs[[1]])
+```
+
+## Meilleurs passeurs
+
+```{r message=FALSE}
+css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(2) > table > tbody"
+df_passeurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+datatable(df_passeurs[[1]])
+```
+
+## Aggregation
+
+En aggrégeant, on obtient le nombre de passes décisives par équipe.
+
+```{r}
+passes_equipe <- df_passeurs[[1]] %>% group_by(Club) %>% summarize(nb_passes = sum(`Passes[23]`))
+passes_equipe
+```
+
+>>>>>>> 77ceb84dfb30d7ac683fa93e423b5542b0a14d67
