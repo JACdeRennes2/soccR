@@ -6,7 +6,6 @@ output:
   html_document
 ---
 
-
 On s'intéresse a une API sur le foot. 
 On peut en trouver une sur le site : https://www.football-data.org/
 
@@ -17,8 +16,8 @@ library(httr)
 library(jsonlite)
 
 # Récupération des données de tous les matchs de la Champions League
-url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2020"
-response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
+#url <- "https://api.football-data.org/v4/competitions/CL/matches?season=2020"
+#response <- GET(url, add_headers("X-Auth-Token" = "d0d8b5553bd34025bac768b663973df2"))
 data <- fromJSON(rawToChar(response$content))
 matches <- data$matches
 ```
@@ -76,12 +75,17 @@ matches_scores$away_score <- as.numeric(sub("^([0-9]+) - ([0-9]+)$", "\\2", matc
 # Création de la variable 'winner'
 matches_scores$winner <- with(matches_scores, ifelse(home_score > away_score, homeTeam_name, ifelse(home_score < away_score, awayTeam_name, "Draw")))
 
+# Création du graphique avec ggplot2
 ggplot(matches_scores, aes(x = homeTeam_name, y = awayTeam_name, fill = tour)) + 
   geom_tile(aes(width = 0.9, height = 0.9), color = "white", size = 0.5) +
   geom_text(aes(label = total_score), size = 5) +
-  scale_fill_discrete(name = "Winner") +
+  scale_fill_discrete(name = "Tour") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = "Nom de l'équipe à domicile", y = "Nom de l'équipe à l'extérieur")
+  labs(x = NULL, y = NULL) +
+  coord_fixed() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
 
 ```
+
+
+
