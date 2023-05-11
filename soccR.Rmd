@@ -2,9 +2,82 @@
 title: "soccR"
 author: "Anatole GAYANT, Jules AVIGNON, Clément PEREON"
 date: "2023-04-28"
-output: 
-  html_document
+output:
+  html_document : default
 ---
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #E3F9FF;
+}
+
+.title {
+  font-size: 62px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333333;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.blague {
+  font-size: 9px;
+  color: #777777;
+}
+
+.subtitle {
+  font-size: 24px;
+  margin-bottom: 40px;
+  color: #666666;
+}
+
+.author {
+  font-size: 18px;
+  font-style: italic;
+  margin-bottom: 20px;
+  color: #555555;
+}
+
+.date {
+  font-size: 16px;
+  color: #777777;
+}
+
+.decoration {
+  width: 300px;
+  height: 200px;
+  background-color: #96D0FF;
+  border-radius: 50%;
+  margin-top: 40px;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="decoration"></div>
+  <div class="title">SoccR</div>
+  <div class="blague">oui, parce que ça fait un petit jeu de mot avec R et soccer</div>
+  <div class="subtitle">Analyse des matchs de la Ligue des champions 2020-2021</div>
+  <div class="author">Anatole GAYANT, Jules AVIGNON, Clément PEREON</div>
+  <div class="date">Date de remise : 11/05/2023</div>
+</div>
+</body>
+</html>
+
 
 Pour notre projet de R avancé, nous avons choisi de récupérer les données de tous les matchs de l'édition 2020-2021 de la Ligue des champions à partir de l'API football-data.org. Pour cela, nous avons utilisé les librairies httr et jsonlite.
 
@@ -158,7 +231,7 @@ datatable(df_finale[[1]])
 
 ```{r message=FALSE}
 css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(135) > tbody > tr > td:nth-child(1) > table > tbody"
-df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_buteurs <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_buteurs[[1]])
 ```
 
@@ -195,13 +268,13 @@ ggplot(df_buteurs_top5, aes(x = Club, y = `Buts/match`, fill = Club)) +
 
 ```{r message=FALSE}
 css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(1) > table > tbody"
-df_buteurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_buteurs <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_buteurs[[1]])
 ```
 
 ```{r message=FALSE, fig.align='center'}
-df_buteurs_top5 <- df_buteurs[[1]] %>%
-  slice(1:5) %>%
+df_buteurs_top5 <- df_buteurs[[1]] |>
+  slice(1:5) |>
   arrange(desc(`Buts[22]`))
 
 ggplot(df_buteurs_top5, aes(x = reorder(Buteur, `Buts[22]`), y = `Buts[22]`)) +
@@ -219,7 +292,7 @@ ggplot(df_buteurs_top5, aes(x = reorder(Buteur, `Buts[22]`), y = `Buts[22]`)) +
 
 ```{r message=FALSE}
 css_selector <- "#mw-content-text > div.mw-parser-output > table:nth-child(130) > tbody > tr > td:nth-child(2) > table > tbody"
-df_passeurs <- data_html %>% html_nodes(css_selector) %>% html_table()
+df_passeurs <- data_html |> html_nodes(css_selector) |> html_table()
 datatable(df_passeurs[[1]])
 ```
 
@@ -229,6 +302,6 @@ datatable(df_passeurs[[1]])
 En agrégeant, on obtient le nombre de passes décisives par équipe.
 
 ```{r message=FALSE}
-passes_equipe <- df_passeurs[[1]] %>% group_by(Club) %>% summarize(nb_passes = sum(`Passes[23]`))
+passes_equipe <- df_passeurs[[1]] |> group_by(Club) |> summarize(nb_passes = sum(`Passes[23]`))
 passes_equipe
 ```
